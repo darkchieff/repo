@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <title>DARKCHIEF</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content">
 <script>
 /* Registers coi-serviceworker.js so the page becomes cross-origin isolated
    (required for the in-browser Linux). Reloads once after the worker is active. */
@@ -219,7 +219,7 @@
     <div id="lx-keys">
       <button data-k="esc">ESC</button><button data-k="tab">TAB</button><button data-k="ctrl" id="lx-ctrl">CTRL</button>
       <button data-k="up">&uarr;</button><button data-k="down">&darr;</button><button data-k="left">&larr;</button><button data-k="right">&rarr;</button>
-      <button data-k="dos">DOS</button>
+      <button data-k="dos">DOS</button><button data-k="net">NET</button>
       <span id="lx-net">NET: off</span><a id="lx-login" href="#" target="_blank" rel="noopener">TAILSCALE LOGIN</a>
     </div>
   </div>
@@ -674,13 +674,25 @@
   function loadJs(u){ return new Promise((ok,no)=>{ const e=document.createElement('script'); e.src=u; e.crossOrigin='anonymous'; e.onload=ok; e.onerror=no; document.head.appendChild(e); }); }
 
   function show(){
-    pane.style.display = 'flex'; dosTerm.style.display = 'none'; window.__linuxShown = true;
+    pane.style.display = 'flex'; dosTerm.style.display = 'none'; window.__linuxShown = true; fitPane();
     setTimeout(()=>{ if(lx.term) lx.term.focus(); }, 60);
   }
   function hide(){
     pane.style.display = 'none'; dosTerm.style.display = ''; window.__linuxShown = false;
     if(window.matchMedia('(pointer:fine)').matches){ const i=document.getElementById('term-in'); if(i) i.focus(); }
   }
+
+  // keep the pane (and its button bar) above the on-screen keyboard, in any browser
+  function fitPane(){
+    const v = window.visualViewport;
+    const covered = v ? Math.max(0, window.innerHeight - v.height - v.offsetTop) : 0;
+    pane.style.bottom = covered + 'px';
+  }
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize', fitPane);
+    window.visualViewport.addEventListener('scroll', fitPane);
+  }
+  window.addEventListener('resize', fitPane);
 
   function sendStr(str){
     if(!lx.send) return;
@@ -699,6 +711,7 @@
     const k = b.dataset.k;
     if(k === 'ctrl'){ lx.ctrl = !lx.ctrl; b.classList.toggle('on', lx.ctrl); }
     else if(k === 'dos'){ hide(); }
+    else if(k === 'net'){ netStatus('logging in...'); window.netLogin(); }
     else sendStr(KEYMAP[k]);
     if(lx.term && k !== 'dos') lx.term.focus();
   });
