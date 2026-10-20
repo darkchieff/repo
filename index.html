@@ -4,302 +4,129 @@
 <meta charset="utf-8">
 <title>DARKCHIEF</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<script>
+/* Registers coi-serviceworker.js so the page becomes cross-origin isolated
+   (required for the in-browser Linux). Reloads once after the worker is active. */
+(function(){
+  if(window.crossOriginIsolated || !('serviceWorker' in navigator)) return;
+  navigator.serviceWorker.register('coi-serviceworker.js').then(function(){
+    return navigator.serviceWorker.ready;
+  }).then(function(){
+    if(!sessionStorage.getItem('coi-reloaded')){
+      sessionStorage.setItem('coi-reloaded','1');
+      location.reload();
+    }
+  }).catch(function(e){ console.warn('coi service worker failed', e); });
+})();
+</script>
 <style>
   :root{
     --bg:#05070a;
     --panel:#0a0f14;
-    --grid:#0d1a17;
     --neon-cyan:#00fff2;
     --neon-magenta:#ff2bd6;
     --neon-yellow:#f4ff2b;
     --text-dim:#7fa89f;
     --text:#d8fff5;
   }
-
   *{box-sizing:border-box;}
-
-  html,body{
-    margin:0;
-    padding:0;
-    background:var(--bg);
-    color:var(--text);
-    font-family:'Consolas','Courier New',monospace;
-    overflow-x:hidden;
-  }
-
-  canvas#matrix{
-    position:fixed;
-    inset:0;
-    z-index:0;
-    opacity:0.55;
-  }
-
-  .scanlines{
-    position:fixed;
-    inset:0;
-    z-index:1;
-    pointer-events:none;
-    background:repeating-linear-gradient(
-      to bottom,
-      rgba(0,0,0,0) 0px,
-      rgba(0,0,0,0) 2px,
-      rgba(0,0,0,0.15) 3px
-    );
-    mix-blend-mode:overlay;
-  }
-
-  .vignette{
-    position:fixed;
-    inset:0;
-    z-index:1;
-    pointer-events:none;
-    background:radial-gradient(ellipse at center, rgba(0,0,0,0) 40%, rgba(0,0,0,0.75) 100%);
-  }
-
-  main{
-    position:relative;
-    z-index:2;
-    max-width:900px;
-    margin:0 auto;
-    padding:48px 20px 90px;
-  }
-
-  header{
-    text-align:center;
-    margin-bottom:56px;
-  }
-
-  .badge{
-    display:inline-block;
-    font-size:11px;
-    letter-spacing:2px;
-    color:var(--neon-yellow);
-    border:1px solid rgba(244,255,43,0.4);
-    padding:3px 10px;
-    border-radius:2px;
-    margin-bottom:18px;
-    background:rgba(244,255,43,0.05);
-  }
-
-  h1{
-    font-size:clamp(32px,7vw,64px);
-    margin:0;
-    letter-spacing:4px;
-    color:var(--neon-cyan);
-    text-shadow:
-      0 0 6px var(--neon-cyan),
-      0 0 22px rgba(0,255,242,0.5),
-      0 0 40px rgba(0,255,242,0.25);
-    position:relative;
-    display:inline-block;
-  }
-
-  h1::before,
-  h1::after{
-    content:'DARKCHIEF';
-    position:absolute;
-    left:0;
-    top:0;
-    width:100%;
-    overflow:hidden;
-    clip-path:inset(0 0 0 0);
-  }
-
-  h1::before{
-    color:var(--neon-magenta);
-    animation:glitch-top 4.5s infinite linear alternate-reverse;
-    opacity:0.7;
-  }
-
-  h1::after{
-    color:var(--neon-yellow);
-    animation:glitch-bottom 3.7s infinite linear alternate-reverse;
-    opacity:0.6;
-  }
-
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'Consolas','Courier New',monospace;overflow-x:hidden;}
+  canvas#matrix{position:fixed;inset:0;z-index:0;opacity:0.55;}
+  .scanlines{position:fixed;inset:0;z-index:1;pointer-events:none;background:repeating-linear-gradient(to bottom,rgba(0,0,0,0) 0px,rgba(0,0,0,0) 2px,rgba(0,0,0,0.15) 3px);mix-blend-mode:overlay;}
+  .vignette{position:fixed;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse at center,rgba(0,0,0,0) 40%,rgba(0,0,0,0.75) 100%);}
+  main{position:relative;z-index:2;max-width:900px;margin:0 auto;padding:48px 20px 90px;}
+  header{text-align:center;margin-bottom:56px;}
+  .badge{display:inline-block;font-size:11px;letter-spacing:2px;color:var(--neon-yellow);border:1px solid rgba(244,255,43,0.4);padding:3px 10px;border-radius:2px;margin-bottom:18px;background:rgba(244,255,43,0.05);}
+  h1{font-size:clamp(32px,7vw,64px);margin:0;letter-spacing:4px;color:var(--neon-cyan);text-shadow:0 0 6px var(--neon-cyan),0 0 22px rgba(0,255,242,0.5),0 0 40px rgba(0,255,242,0.25);position:relative;display:inline-block;}
+  h1::before,h1::after{content:'DARKCHIEF';position:absolute;left:0;top:0;width:100%;overflow:hidden;clip-path:inset(0 0 0 0);}
+  h1::before{color:var(--neon-magenta);animation:glitch-top 4.5s infinite linear alternate-reverse;opacity:0.7;}
+  h1::after{color:var(--neon-yellow);animation:glitch-bottom 3.7s infinite linear alternate-reverse;opacity:0.6;}
   @keyframes glitch-top{
-    0%{clip-path:inset(0 0 85% 0); transform:translate(0,0);}
-    10%{clip-path:inset(10% 0 60% 0); transform:translate(-3px,-1px);}
-    20%{clip-path:inset(40% 0 20% 0); transform:translate(3px,1px);}
-    30%{clip-path:inset(0 0 90% 0); transform:translate(-2px,0);}
-    100%{clip-path:inset(0 0 85% 0); transform:translate(0,0);}
+    0%{clip-path:inset(0 0 85% 0);transform:translate(0,0);}
+    10%{clip-path:inset(10% 0 60% 0);transform:translate(-3px,-1px);}
+    20%{clip-path:inset(40% 0 20% 0);transform:translate(3px,1px);}
+    30%{clip-path:inset(0 0 90% 0);transform:translate(-2px,0);}
+    100%{clip-path:inset(0 0 85% 0);transform:translate(0,0);}
   }
   @keyframes glitch-bottom{
-    0%{clip-path:inset(80% 0 0 0); transform:translate(0,0);}
-    15%{clip-path:inset(55% 0 10% 0); transform:translate(2px,1px);}
-    30%{clip-path:inset(20% 0 50% 0); transform:translate(-3px,-1px);}
-    45%{clip-path:inset(70% 0 0 0); transform:translate(2px,0);}
-    100%{clip-path:inset(80% 0 0 0); transform:translate(0,0);}
+    0%{clip-path:inset(80% 0 0 0);transform:translate(0,0);}
+    15%{clip-path:inset(55% 0 10% 0);transform:translate(2px,1px);}
+    30%{clip-path:inset(20% 0 50% 0);transform:translate(-3px,-1px);}
+    45%{clip-path:inset(70% 0 0 0);transform:translate(2px,0);}
+    100%{clip-path:inset(80% 0 0 0);transform:translate(0,0);}
   }
-
-  .subtitle{
-    margin-top:14px;
-    color:var(--text-dim);
-    font-size:14px;
-    letter-spacing:1px;
-  }
-
-  .subtitle .cursor{
-    display:inline-block;
-    width:8px;
-    background:var(--neon-cyan);
-    animation:blink 1s step-end infinite;
-    margin-left:2px;
-  }
+  .subtitle{margin-top:14px;color:var(--text-dim);font-size:14px;letter-spacing:1px;}
+  .subtitle .cursor{display:inline-block;width:8px;background:var(--neon-cyan);animation:blink 1s step-end infinite;margin-left:2px;}
   @keyframes blink{50%{opacity:0;}}
-
-  section{
-    margin-bottom:40px;
-  }
-
-  .section-title{
-    font-size:13px;
-    letter-spacing:3px;
-    color:var(--neon-magenta);
-    margin:0 0 16px 4px;
-    text-shadow:0 0 8px rgba(255,43,214,0.6);
-  }
-
-  .card{
-    background:linear-gradient(180deg, rgba(0,255,242,0.04), rgba(255,43,214,0.02));
-    border:1px solid rgba(0,255,242,0.25);
-    border-left:3px solid var(--neon-cyan);
-    padding:18px 20px;
-    margin-bottom:14px;
-    border-radius:2px;
-    display:flex;
-    flex-wrap:wrap;
-    align-items:center;
-    justify-content:space-between;
-    gap:14px;
-    transition:border-color 0.25s ease, box-shadow 0.25s ease, transform 0.15s ease;
-    position:relative;
-    overflow:hidden;
-  }
-
-  .card:hover{
-    border-color:var(--neon-cyan);
-    box-shadow:0 0 18px rgba(0,255,242,0.25), inset 0 0 30px rgba(0,255,242,0.05);
-  }
-
-  .card .label b{
-    color:var(--neon-cyan);
-  }
-  .card .label p{
-    margin:4px 0 0;
-    color:var(--text-dim);
-    font-size:13px;
-  }
-
-  .btn{
-    --glow:var(--neon-cyan);
-    position:relative;
-    display:inline-flex;
-    align-items:center;
-    gap:8px;
-    background:transparent;
-    color:var(--glow);
-    border:1px solid var(--glow);
-    padding:10px 18px;
-    font-family:inherit;
-    font-size:12px;
-    letter-spacing:1.5px;
-    text-decoration:none;
-    cursor:pointer;
-    border-radius:2px;
-    white-space:nowrap;
-    transition:all 0.15s ease;
-    text-shadow:0 0 6px var(--glow);
-  }
-
-  .btn::before{
-    content:'>';
-    opacity:0;
-    transform:translateX(-6px);
-    transition:all 0.15s ease;
-  }
-
-  .btn:hover{
-    background:var(--glow);
-    color:#04100e;
-    text-shadow:none;
-    box-shadow:0 0 12px var(--glow), 0 0 30px var(--glow);
-  }
-
-  .btn:hover::before{
-    opacity:1;
-    transform:translateX(0);
-  }
-
-  .btn:active{
-    transform:scale(0.96);
-  }
-
+  section{margin-bottom:40px;}
+  .section-title{font-size:13px;letter-spacing:3px;color:var(--neon-magenta);margin:0 0 16px 4px;text-shadow:0 0 8px rgba(255,43,214,0.6);}
+  .card{background:linear-gradient(180deg,rgba(0,255,242,0.04),rgba(255,43,214,0.02));border:1px solid rgba(0,255,242,0.25);border-left:3px solid var(--neon-cyan);padding:18px 20px;margin-bottom:14px;border-radius:2px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px;transition:border-color 0.25s ease,box-shadow 0.25s ease;position:relative;overflow:hidden;}
+  .card:hover{border-color:var(--neon-cyan);box-shadow:0 0 18px rgba(0,255,242,0.25),inset 0 0 30px rgba(0,255,242,0.05);}
+  .card .label b{color:var(--neon-cyan);}
+  .card .label p{margin:4px 0 0;color:var(--text-dim);font-size:13px;}
+  .btn{--glow:var(--neon-cyan);position:relative;display:inline-flex;align-items:center;gap:8px;background:transparent;color:var(--glow);border:1px solid var(--glow);padding:10px 18px;font-family:inherit;font-size:12px;letter-spacing:1.5px;text-decoration:none;cursor:pointer;border-radius:2px;white-space:nowrap;transition:all 0.15s ease;text-shadow:0 0 6px var(--glow);}
+  .btn::before{content:'>';opacity:0;transform:translateX(-6px);transition:all 0.15s ease;}
+  .btn:hover{background:var(--glow);color:#04100e;text-shadow:none;box-shadow:0 0 12px var(--glow),0 0 30px var(--glow);}
+  .btn:hover::before{opacity:1;transform:translateX(0);}
+  .btn:active{transform:scale(0.96);}
   .btn.magenta{--glow:var(--neon-magenta);}
   .btn.yellow{--glow:var(--neon-yellow);}
+  .featured-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;}
+  .panel{background:var(--panel);border:1px solid rgba(255,43,214,0.25);padding:18px;border-radius:2px;transition:transform 0.15s ease,box-shadow 0.2s ease;}
+  .panel:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(255,43,214,0.15);}
+  .panel h3{margin:0 0 8px;color:var(--neon-magenta);font-size:15px;letter-spacing:1px;}
+  .panel p{color:var(--text-dim);font-size:13px;line-height:1.5;}
+  footer{text-align:center;margin-top:60px;color:var(--text-dim);font-size:11px;letter-spacing:1px;}
 
-  .featured-grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
-    gap:16px;
-  }
+  #audio-toggle{position:fixed;top:16px;right:16px;z-index:5;background:rgba(5,7,10,0.8);border:1px solid var(--neon-cyan);color:var(--neon-cyan);padding:8px 14px;font-family:inherit;font-size:11px;letter-spacing:1px;border-radius:2px;cursor:pointer;backdrop-filter:blur(4px);}
+  #audio-toggle:hover{background:var(--neon-cyan);color:#04100e;}
 
-  .panel{
-    background:var(--panel);
-    border:1px solid rgba(255,43,214,0.25);
-    padding:18px;
-    border-radius:2px;
-    transition:transform 0.15s ease, box-shadow 0.2s ease;
+  /* hidden door: nearly invisible, shows a little on hover/focus */
+  #secret-door{
+    display:inline-block;margin-left:10px;background:none;border:0;padding:4px 6px;
+    color:var(--text-dim);font-family:inherit;font-size:11px;cursor:pointer;
+    opacity:0.04;transition:opacity 0.3s ease;
   }
-  .panel:hover{
-    transform:translateY(-3px);
-    box-shadow:0 8px 24px rgba(255,43,214,0.15);
-  }
-  .panel h3{
-    margin:0 0 8px;
-    color:var(--neon-magenta);
-    font-size:15px;
-    letter-spacing:1px;
-  }
-  .panel p{
-    color:var(--text-dim);
-    font-size:13px;
-    line-height:1.5;
-  }
+  #secret-door:hover,#secret-door:focus-visible{opacity:0.7;}
 
-  footer{
-    text-align:center;
-    margin-top:60px;
-    color:var(--text-dim);
-    font-size:11px;
-    letter-spacing:1px;
+  /* ---------- hidden menu page: DOS terminal ---------- */
+  #menu-page{
+    display:none;position:fixed;inset:0;z-index:20;overflow-y:auto;
+    background:#000;color:#b8b8b8;
+    font-family:'Perfect DOS VGA 437','Consolas','Courier New',monospace;
+    font-size:clamp(12px,3.4vw,16px);line-height:1.35;
   }
+  #menu-page.open{display:block;}
+  #menu-page::after{content:'';position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(to bottom,rgba(255,255,255,0.025) 0,rgba(255,255,255,0.025) 1px,transparent 1px,transparent 3px);}
+  .term{max-width:720px;margin:0 auto;padding:54px 14px 80px;min-height:100%;cursor:text;}
+  #term-out div{white-space:pre-wrap;word-break:break-word;min-height:1.35em;}
+  #term-out .hi{color:#fff;}
+  #term-out .cy{color:#55ffff;}
+  #term-out .yl{color:#ffff55;}
+  #term-out .mg{color:#ff55ff;}
+  #term-out .dim{color:#7a7a7a;}
+  .term-line{display:flex;align-items:center;gap:0;}
+  .term-line .prompt{color:#b8b8b8;white-space:pre;}
+  #term-in{flex:1;min-width:0;background:transparent;border:0;outline:0;color:#fff;font:inherit;caret-color:#fff;padding:0;text-transform:uppercase;}
+  #term-keys{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px;}
+  #term-keys button,.menu-ctrl button{background:#000;color:#b8b8b8;border:1px solid #b8b8b8;font:inherit;font-size:12px;padding:5px 10px;cursor:pointer;border-radius:0;}
+  #term-keys button:hover,.menu-ctrl button:hover{background:#b8b8b8;color:#000;}
+  .menu-ctrl{position:fixed;top:10px;right:10px;display:flex;gap:8px;z-index:21;}
+  .menu-ctrl button{background:#000;}
 
-  /* audio toggle */
-  #audio-toggle{
-    position:fixed;
-    top:16px;
-    right:16px;
-    z-index:5;
-    background:rgba(5,7,10,0.8);
-    border:1px solid var(--neon-cyan);
-    color:var(--neon-cyan);
-    padding:8px 14px;
-    font-family:inherit;
-    font-size:11px;
-    letter-spacing:1px;
-    border-radius:2px;
-    cursor:pointer;
-    backdrop-filter:blur(4px);
-  }
-  #audio-toggle:hover{
-    background:var(--neon-cyan);
-    color:#04100e;
-  }
+  #lx-pane{display:none;position:fixed;inset:44px 0 0 0;background:#000;flex-direction:column;z-index:19;}
+  #lx-host{flex:1;min-height:0;padding:4px 6px;overflow:hidden;}
+  #lx-keys{display:flex;flex-wrap:wrap;gap:6px;padding:6px;border-top:1px solid #333;background:#000;}
+  #lx-keys button{background:#000;color:#b8b8b8;border:1px solid #b8b8b8;font:inherit;font-size:12px;padding:6px 10px;cursor:pointer;border-radius:0;}
+  #lx-keys button.on,#lx-keys button:active{background:#b8b8b8;color:#000;}
+
+  #lx-net{margin-left:auto;font-size:12px;color:#7a7a7a;align-self:center;}
+  #lx-login{display:none;font-size:12px;color:#55ffff;align-self:center;}
+  #term-out a{color:#55ffff;}
 
   @media (prefers-reduced-motion: reduce){
-    h1::before, h1::after{animation:none; display:none;}
-    .card, .panel, .btn{transition:none;}
+    h1::before,h1::after{animation:none;display:none;}
+    .card,.panel,.btn{transition:none;}
   }
 </style>
 </head>
@@ -320,32 +147,26 @@
 
   <section>
     <p class="section-title">// PACKAGE MANAGERS</p>
-
     <div class="card">
       <div class="label"><b>DarkChief</b><p>Repo for Cydia</p></div>
       <a class="btn" href="cydia://url/https://cydia.saurik.com/api/share#?source=https://chuckles66.github.io/repo">ADD TO CYDIA</a>
     </div>
-
     <div class="card">
       <div class="label"><b>DarkChief</b><p>Repo for Installer</p></div>
       <a class="btn" href="installer://url/https://cydia.saurik.com/api/share#?source=https://chuckles66.github.io/repo">ADD TO INSTALLER</a>
     </div>
-
     <div class="card">
       <div class="label"><b>Installer</b><p>Package manager</p></div>
       <a class="btn magenta" href="cydia://url/https://cydia.saurik.com/api/share#?source=https://apptapp.me/repo/">APPTAPP REPO</a>
     </div>
-
     <div class="card">
       <div class="label"><b>Zebra</b><p>Package manager</p></div>
       <a class="btn magenta" href="cydia://url/https://cydia.saurik.com/api/share#?source=https://getzbra.com/repo/">ZEBRA REPO</a>
     </div>
-
     <div class="card">
       <div class="label"><b>DarkChief</b><p>Dynastic</p></div>
       <a class="btn" href="cydia://url/https://cydia.saurik.com/api/share#?source=https://repo.dynastic.co/">DYNASTIC</a>
     </div>
-
     <div class="card">
       <div class="label"><b>DarkChief</b><p>Unc0ver Jailbreak — iOS 11.0–13.5</p></div>
       <a class="btn yellow" href="https://unc0ver.dev/downloads/5.3.1/72004596b31ba3eae886ac6cc781725879d3b7a4/unc0ver_5.3.1.ipa">UNC0VER 5.3.1</a>
@@ -384,8 +205,32 @@
     </div>
   </section>
 
-  <footer>DARKCHIEF // SIGNAL TERMINATES HERE</footer>
+  <footer>DARKCHIEF // SIGNAL TERMINATES HERE<button id="secret-door" aria-label="Menu">◦</button></footer>
 </main>
+
+<!-- ========== HIDDEN MENU PAGE (DOS terminal) ========== -->
+<div id="menu-page" aria-hidden="true">
+  <div class="menu-ctrl">
+    <button id="menu-mute">♪ SOUND: ON</button>
+    <button id="menu-back">EXIT</button>
+  </div>
+  <div id="lx-pane">
+    <div id="lx-host"></div>
+    <div id="lx-keys">
+      <button data-k="esc">ESC</button><button data-k="tab">TAB</button><button data-k="ctrl" id="lx-ctrl">CTRL</button>
+      <button data-k="up">&uarr;</button><button data-k="down">&darr;</button><button data-k="left">&larr;</button><button data-k="right">&rarr;</button>
+      <button data-k="dos">DOS</button>
+      <span id="lx-net">NET: off</span><a id="lx-login" href="#" target="_blank" rel="noopener">TAILSCALE LOGIN</a>
+    </div>
+  </div>
+  <div class="term" id="term">
+    <div id="term-out"></div>
+    <div class="term-line"><span class="prompt" id="term-prompt">C:\&gt;</span><input id="term-in" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Command line"></div>
+  </div>
+</div>
+
+<!-- Background sound for the menu page -->
+<audio id="menu-audio" loop preload="auto" playsinline crossorigin="anonymous"></audio>
 
 <script>
 /* ---------- Matrix rain background ---------- */
@@ -408,19 +253,14 @@
     ctx.fillStyle = 'rgba(5,7,10,0.08)';
     ctx.fillRect(0,0,w,h);
     ctx.font = '15px monospace';
-
     for(let i=0;i<drops.length;i++){
       const text = chars[Math.floor(Math.random()*chars.length)];
       const x = i*16;
       const y = drops[i]*16;
-
       const grad = Math.random();
       ctx.fillStyle = grad > 0.97 ? '#ff2bd6' : (grad > 0.9 ? '#f4ff2b' : '#00fff2');
       ctx.fillText(text, x, y);
-
-      if(y > h && Math.random() > 0.975){
-        drops[i] = 0;
-      }
+      if(y > h && Math.random() > 0.975){ drops[i] = 0; }
       drops[i]++;
     }
   }
@@ -435,8 +275,6 @@
 })();
 
 /* ---------- Synthesized cyberpunk ambience (Web Audio API) ---------- */
-/* No external audio files are used — this generates a low synth drone
-   and arpeggio entirely in-browser so nothing copyrighted is embedded. */
 (function(){
   const btn = document.getElementById('audio-toggle');
   let ctxAudio, playing = false, nodes = [], arpTimer;
@@ -447,7 +285,6 @@
     master.gain.value = 0.06;
     master.connect(ctxAudio.destination);
 
-    // low drone
     const drone = ctxAudio.createOscillator();
     drone.type = 'sawtooth';
     drone.frequency.value = 55;
@@ -457,7 +294,6 @@
     drone.connect(droneFilter).connect(master);
     drone.start();
 
-    // slow LFO on filter for movement
     const lfo = ctxAudio.createOscillator();
     lfo.frequency.value = 0.08;
     const lfoGain = ctxAudio.createGain();
@@ -467,7 +303,6 @@
 
     nodes = [drone, lfo, master];
 
-    // sparse neon arpeggio
     const notes = [220, 261.6, 329.6, 392, 440];
     arpTimer = setInterval(()=>{
       if(Math.random() > 0.55) return;
@@ -492,7 +327,7 @@
     nodes = [];
   }
 
-  btn.addEventListener('click', ()=>{
+  function toggle(){
     playing = !playing;
     if(playing){
       startAudio();
@@ -503,7 +338,467 @@
       btn.textContent = '◉ AUDIO: OFF';
       btn.setAttribute('aria-pressed','false');
     }
+  }
+  btn.addEventListener('click', toggle);
+
+  // let the menu page silence the synth when it opens
+  window.stopSynth = function(){ if(playing) toggle(); };
+})();
+
+/* ---------- Hidden menu page + Betrayal.ogg ---------- */
+(function(){
+  const page  = document.getElementById('menu-page');
+  const audio = document.getElementById('menu-audio');
+  const door  = document.getElementById('secret-door');
+  const back  = document.getElementById('menu-back');
+  const mute  = document.getElementById('menu-mute');
+  let muted = false;
+
+  audio.volume = 0.5;
+
+  const BASE = 'https://darkchieff.github.io/Betrayal';
+  const canOgg = !!audio.canPlayType('audio/ogg; codecs="vorbis"');
+  const order = canOgg ? ['ogg','mp3'] : ['mp3','ogg'];
+  let tried = 0;
+
+  function setSrc(){ audio.src = BASE + '.' + order[tried]; }
+  setSrc();
+
+  function label(t){ mute.textContent = '\u266a ' + t; }
+
+  audio.addEventListener('error', ()=>{
+    console.warn('Audio failed:', audio.src, audio.error);
+    if(tried < order.length - 1){ tried++; setSrc(); if(page.classList.contains('open')) tryPlay(); }
+    else label('SOUND FAILED TO LOAD');
   });
+  audio.addEventListener('playing', ()=>label('SOUND: ON'));
+
+  function tryPlay(){
+    if(muted) return;
+    const p = audio.play();
+    if(p && p.catch){
+      p.catch(err=>{
+        if(err && err.name === 'NotAllowedError'){
+          label('TAP TO PLAY SOUND');
+          const once = ()=>{ if(page.classList.contains('open') && !muted) audio.play().catch(()=>{}); };
+          document.addEventListener('pointerdown', once, {once:true});
+        }
+      });
+    }
+  }
+
+  function openMenu(){
+    if(window.stopSynth) window.stopSynth();
+    page.classList.add('open');
+    page.setAttribute('aria-hidden','false');
+    document.documentElement.style.overflow = 'hidden';
+    page.scrollTop = 0;
+    if(location.hash !== '#menu') history.pushState(null,'','#menu');
+    tryPlay();
+  }
+
+  function closeMenu(){
+    page.classList.remove('open');
+    page.setAttribute('aria-hidden','true');
+    document.documentElement.style.overflow = '';
+    audio.pause();
+    audio.currentTime = 0;
+    if(location.hash === '#menu') history.pushState(null,'',location.pathname + location.search);
+  }
+
+  door.addEventListener('click', openMenu);
+  back.addEventListener('click', closeMenu);
+
+  mute.addEventListener('click', ()=>{
+    muted = !muted;
+    if(muted){ audio.pause(); mute.textContent = '♪ SOUND: OFF'; }
+    else { tryPlay(); mute.textContent = '♪ SOUND: ON'; }
+  });
+
+  window.addEventListener('keydown', e=>{
+    if(e.key === 'Escape' && page.classList.contains('open') && !window.__linuxShown) closeMenu();
+  });
+
+  window.addEventListener('popstate', ()=>{
+    if(location.hash === '#menu') openMenu();
+    else if(page.classList.contains('open')) closeMenu();
+  });
+
+  if(location.hash === '#menu') openMenu();
+})();
+
+/* ---------- DOS terminal for the hidden menu ---------- */
+(function(){
+  const page = document.getElementById('menu-page');
+  const out  = document.getElementById('term-out');
+  const inp  = document.getElementById('term-in');
+  const W = 40;
+  const MENU = {
+    STARTERS: [['Loaded Nachos','6.50','Cheese, jalapenos, salsa, soured cream'],['Garlic Bread','4.00','With or without mozzarella'],['Soup of the Day','5.00','Crusty roll. Ask what is in the pot']],
+    MAINS: [['The Chief Burger','11.50','Double beef, cheddar, pickles, chips'],['Crispy Chicken Wrap','9.00','Buttermilk chicken, sweet chilli mayo'],['Mushroom Stroganoff','10.50','Paprika cream sauce, rice (veg)'],['Fish & Chips','12.00','Beer-battered cod, mushy peas'],['Margherita Pizza','9.50','Stone-baked, mozzarella, basil']],
+    DESSERTS: [['Sticky Toffee Pudding','5.50','Custard or vanilla ice cream'],['Chocolate Brownie','5.00','Fudgy centre, ice cream']],
+    DRINKS: [['Fresh Lemonade','3.00',''],['Milkshake','4.50','Vanilla, chocolate or strawberry'],['Pot of Tea','2.50','']]
+  };
+  let timers = [];
+
+  function print(text, cls){
+    const d = document.createElement('div');
+    if(cls) d.className = cls;
+    d.textContent = text;
+    out.appendChild(d);
+    page.scrollTop = page.scrollHeight;
+  }
+  function row(n, p){
+    const price = '\u00a3' + p;
+    return n + ' ' + '.'.repeat(Math.max(2, W - n.length - price.length - 2)) + ' ' + price;
+  }
+  function showCat(name){
+    print('');
+    print('=== ' + name + ' ' + '='.repeat(Math.max(0, W - name.length - 5)), 'yl');
+    MENU[name].forEach(it=>{
+      print(row(it[0], it[1]), 'hi');
+      if(it[2]) print('   ' + it[2], 'dim');
+    });
+  }
+  const ARTICLES = [
+    ['THREES','Rule of 3s - survival priorities','priorities order basics air shelter water food',[
+      '- 3 minutes without air (or in icy water)',
+      '- 3 hours without shelter in harsh weather',
+      '- 3 days without water',
+      '- 3 weeks without food',
+      'Work in that order: safety, shelter, water, fire, signal, then food.']],
+    ['WATER','Finding and purifying water','water drink thirst purify boil filter dehydration rain dew snow stream tablets',[
+      '- Aim for 2-3 L a day, more in heat. Dark urine, headache and dizziness mean you are dehydrated.',
+      '- Sources: moving streams, rain, dew mopped up with cloth, melted snow or ice.',
+      '- Clear water is not safe water. Strain cloudy water through cloth, then treat it.',
+      '- Treat: rolling boil for 1 minute (3 minutes above ~2,000 m / 6,500 ft), or use a filter and/or purification tablets as per the label.',
+      '- Do not drink seawater, urine or alcohol.',
+      '- Do not ration water by sipping. Ration sweat instead: rest in shade, travel in cool hours.']],
+    ['FIRE','Making and keeping a fire','fire lighter tinder kindling fuel ferro rod matches warmth cooking',[
+      '- Gather ALL materials before lighting: tinder (catches the spark), kindling (pencil to thumb thick), fuel (wrist thick and up).',
+      '- Tinder: dry grass, birch bark, fatwood, shredded dry inner bark, cotton wool with petroleum jelly.',
+      '- Dead standing wood is drier than wood on the ground. Dry wood snaps cleanly; damp wood bends.',
+      '- Wet or snowy ground: build on a platform of logs or flat rocks.',
+      '- Teepee lay lights fast. Log cabin lay burns long.',
+      '- Ferro rod: hold the rod still against the tinder and pull the striker back along it.',
+      '- Clear a 3 m (10 ft) circle, keep water close, and drown ashes fully before leaving.']],
+    ['SHELTER','Building a shelter','shelter tent debris hut lean-to snow cave insulation camp site',[
+      '- Pick a spot: flat, dry, out of the wind. Avoid dead branches overhead, gullies, flood plains and animal trails.',
+      '- Insulate from the ground first. It steals heat faster than the air does. Use 15 cm (6 in) or more of leaves, boughs or your pack.',
+      '- Small is warm. A debris hut just big enough for your body, with walls about 60 cm (2 ft) thick, holds heat well.',
+      '- Lean-to: ridge pole on supports, branches along one side, cover with bark, leaves or a tarp. Face away from wind.',
+      '- Snow trench or cave: add a vent hole, keep the entrance lower than the sleeping platform, and never in avalanche terrain.']],
+    ['COLD','Hypothermia and frostbite','cold hypothermia frostbite freezing warm shivering wet winter',[
+      '- Early signs: shivering, numb hands, and the umbles (stumbles, mumbles, fumbles, grumbles).',
+      '- Treat: get out of wind and wet, remove wet clothes, insulate from the ground, wrap the core in dry layers or a sleeping bag, give warm sweet drinks if fully alert. Handle gently.',
+      '- Shivering that stops, or drowsiness and confusion, is severe. Get emergency help. Do not rub limbs or give alcohol.',
+      '- Prevent: wicking + insulating + shell layers, avoid cotton, stay dry, eat and drink, avoid sweating.',
+      '- Frostbite: numb, waxy, pale skin. Do not thaw if it could refreeze. Rewarm in warm (37-39 C), not hot, water.',
+      'General information only. Seek medical help.']],
+    ['HEAT','Heat exhaustion and heat stroke','heat stroke exhaustion hot sun dehydration cramps cooling',[
+      '- Exhaustion: heavy sweating, headache, nausea, cramps. Rest in shade, sip water with salts, cool the skin.',
+      '- Heat stroke is an emergency: confusion, hot red skin, no longer sweating properly, temperature above 40 C. Cool fast (wet cloths, shade, fanning, immersion) and get help.',
+      '- Prevent: travel at dawn and dusk, cover skin, wear a hat, drink regularly.',
+      'General information only. Seek medical help.']],
+    ['BLEED','Bleeding and basic first aid','first aid bleeding wound tourniquet bandage burn sprain infection injury',[
+      '- Check the scene is safe. Call for help if you can.',
+      '- Severe bleeding: firm direct pressure with cloth. Do not lift it to peek; add more layers on top and bandage tightly.',
+      '- Limb bleeding that will not stop: tourniquet 5-8 cm (2-3 in) above the wound, not on a joint. Tighten until bleeding stops, note the time, do not remove it.',
+      '- Do not pull out embedded objects. Pad around them.',
+      '- Minor wounds: rinse with clean (treated) water, cover. Watch for redness, heat, swelling, pus, fever.',
+      '- Burns: cool under running water for 20 minutes. No ice, no butter.',
+      '- Sprains: rest, ice if available, compress, elevate.',
+      'A first-aid course beats any text. Take one.']],
+    ['SIGNAL','Signalling for rescue','signal rescue whistle mirror sos flare phone help beacon plb',[
+      '- Rule of 3: three whistle blasts, three fires in a triangle, three flashes. It is the universal distress call.',
+      '- A whistle carries further than your voice and costs no energy.',
+      '- Day: mirror flashes, bright cloth, big contrasting ground signs (SOS or X, letters 3 m or larger), smoke from green boughs on a fire.',
+      '- Night: fire, torch, phone light.',
+      '- Phone: airplane mode and low brightness to save battery. Texts can get through when calls cannot. Use satellite SOS or a PLB if you have one.',
+      '- Before leaving home, tell someone your route and return time.']],
+    ['NAV','Navigation without GPS','navigation compass map sun stars shadow stick north direction polaris',[
+      '- Shadow stick: plant a stick, mark the shadow tip, wait 15 minutes, mark again. The line from first to second mark runs roughly west to east.',
+      '- Sun rises roughly east and sets roughly west. At midday it is south of you in the northern hemisphere, north in the southern.',
+      '- Night, north: Polaris sits above the end of the Big Dipper bowl. South: extend the long axis of the Southern Cross.',
+      '- Map and compass: set the declination, follow handrails (rivers, ridges, trails), take back bearings.',
+      '- Downhill and downstream usually lead to people, but watch for cliffs and waterfalls.']],
+    ['LOST','Lost? Stay or go','lost stop stay put decision search rescue trail panic',[
+      '- S.T.O.P.: Stop. Think. Observe. Plan.',
+      '- Stay put if: someone knows your plan, you are hurt, night or bad weather is coming, or you are near a trail or road. Stationary people are found far faster.',
+      '- Move only if: nobody expects you, you know a safe route, or you are in danger.',
+      '- If you move: mark your route, note landmarks, stay on trails and drainages you can identify.',
+      '- Then set up shelter, water, fire and signals before anything else.']],
+    ['FOOD','Food in the wild','food eat plants mushrooms fish insects hunting forage calories',[
+      '- Food is the lowest priority. You can go weeks without it.',
+      '- Do not eat plants or mushrooms you cannot identify with certainty. Many deadly ones look like edible ones. The universal edibility test is unreliable. Avoid it.',
+      '- Learn a few local edible plants beforehand from a local guide or field guide.',
+      '- Safer options: fish, small trapped game, well-known insects. Cook everything fully.',
+      '- Do not eat a lot without water. Digestion uses water.']],
+    ['KIT','Survival kit and Ten Essentials','kit pack gear essentials emergency preparedness home supplies power outage',[
+      '- Ten Essentials: navigation, headlamp, sun protection, first aid, knife or multitool, fire starter, shelter (emergency bivvy), extra food, extra water, extra clothes.',
+      '- Add: whistle, power bank, cordage, duct tape, ID, personal medication.',
+      '- Home, 3 days minimum: 4 L (1 gallon) of water per person per day, non-perishable food, torch, radio, first aid, medication, power bank, copies of documents.']],
+    ['WILDLIFE','Wildlife encounters','wildlife bear snake tick animals bite attack',[
+      '- Never feed wildlife. Store food away from where you sleep.',
+      '- Bears: stay calm, speak firmly, back away slowly, do not run. Carry bear spray where advised. Brown/grizzly contact defensive: play dead (face down, hands on neck). Black bear, or any attack that continues: fight back.',
+      '- Snakes: give them space. If bitten: stay calm, keep the limb still, remove tight items, get emergency help. Do not cut, suck or tourniquet.',
+      '- Ticks: check your body daily; remove with tweezers pulling straight out.']]
+  ];
+  const STOP = ['how','to','the','do','i','a','an','in','of','and','for','what','is','can','my','on','or','with'];
+  function tokens(t){ return t.toLowerCase().replace(/[^a-z0-9 ]/g,' ').split(/\s+/).filter(w=>w.length>1 && STOP.indexOf(w) < 0); }
+
+  function searchArticles(q){
+    const ts = tokens(q);
+    if(!ts.length) return [];
+    const scored = ARTICLES.map(a=>{
+      const head = (a[0]+' '+a[1]+' '+a[2]).toLowerCase();
+      const body = a[3].join(' ').toLowerCase();
+      let sc = 0, hit = 0;
+      ts.forEach(t=>{ if(head.indexOf(t) >= 0){ sc += 5; hit++; } else if(body.indexOf(t) >= 0){ sc += 1; hit++; } });
+      return {a:a, sc:sc, hit:hit};
+    });
+    let res = scored.filter(r=>r.hit === ts.length);
+    if(!res.length && ts.length > 1) res = scored.filter(r=>r.hit > 0);
+    return res.sort((x,y)=>y.sc - x.sc).map(r=>r.a);
+  }
+  function showArticle(a){
+    print('');
+    print(a[1], 'cy');
+    print('-'.repeat(Math.min(a[1].length, 60)), 'dim');
+    a[3].forEach(l=>print(l, l.indexOf('- ') === 0 ? '' : 'yl'));
+    print('');
+  }
+  function doSearch(q, quiet){
+    if(!q){ print('Usage: SEARCH <words>   e.g. SEARCH purify water', 'mg'); return true; }
+    const res = searchArticles(q);
+    if(!res.length){ if(!quiet) print('No matches for: ' + q, 'mg'); return false; }
+    if(res.length === 1){ showArticle(res[0]); return true; }
+    print(res.length + ' match(es):', 'cy');
+    res.forEach(a=>print('  ' + a[0].padEnd(9) + a[1], 'hi'));
+    print('Type READ <name> to open one.', 'dim');
+    return true;
+  }
+  function byId(id){ return ARTICLES.find(a=>a[0] === id); }
+
+  function run(raw){
+    const q = raw.trim();
+    print('C:\\>' + q);
+    if(!q) return;
+    const up = q.toUpperCase();
+    const parts = up.split(/\s+/);
+    const c0 = parts[0], arg = parts.slice(1).join(' ');
+    if(byId(up)){ showArticle(byId(up)); return; }
+    switch(c0){
+      case 'HELP': case '?':
+        print('Commands:', 'cy');
+        print('  SEARCH <words>  find survival info (or just type your words)');
+        print('  LIST            show all topics');
+        print('  READ <name>     open a topic');
+        print('  LINUX           boot a real Linux shell (Debian, in your browser)');
+        print('  NETLOGIN        connect Linux to the network via Tailscale');
+        print('  NETKEY <key>    save a Tailscale auth key (NETKEY CLEAR removes it)');
+        print('  CLS             clear the screen');
+        print('  EXIT            leave');
+        return;
+      case 'LIST': case 'DIR':
+        print('Topics:', 'cy');
+        ARTICLES.forEach(a=>print('  ' + a[0].padEnd(9) + a[1], 'hi'));
+        return;
+      case 'READ': case 'TYPE': {
+        const a = byId(arg.replace(/\.TXT$/,''));
+        if(a) showArticle(a); else print('File not found - ' + arg, 'mg');
+        return;
+      }
+      case 'SEARCH': case 'FIND': case 'S':
+        doSearch(arg); return;
+      case 'LINUX': case 'BASH': case 'SH': case 'SHELL':
+        if(window.startLinux) window.startLinux(); return;
+      case 'NETLOGIN': case 'NET':
+        if(window.netLogin) window.netLogin(); return;
+      case 'NETKEY':
+        if(window.netKey) window.netKey(q.split(/\s+/).slice(1).join('')); return;
+      case 'CLS': out.innerHTML = ''; return;
+      case 'VER': print('DINER-DOS [Version 6.22]'); return;
+      case 'EXIT': document.getElementById('menu-back').click(); return;
+      case 'MENU':
+        print('');
+        print('  THE DARK CHIEF DINER  -  EST. 1987', 'cy');
+        Object.keys(MENU).forEach(showCat);
+        return;
+    }
+    if(!doSearch(q, true)) print('Bad command or file name', 'mg');
+  }
+
+  window.dosPrint = print;
+  window.dosPrintLink = function(label, url){
+    const d = document.createElement('div');
+    d.appendChild(document.createTextNode(label));
+    const a = document.createElement('a');
+    a.href = url; a.target = '_blank'; a.rel = 'noopener'; a.textContent = url;
+    d.appendChild(a); out.appendChild(d); page.scrollTop = page.scrollHeight;
+  };
+  function onOpen(){
+    timers.forEach(clearTimeout); timers = [];
+    out.innerHTML = '';
+    inp.value = '';
+    setTimeout(()=>inp.focus(), 60);
+  }
+
+  inp.addEventListener('keydown', e=>{
+    if(e.key === 'Enter'){ run(inp.value); inp.value = ''; }
+  });
+  document.getElementById('term').addEventListener('click', e=>{
+    if(!e.target.closest('button') && !window.getSelection().toString()) inp.focus();
+  });
+
+  new MutationObserver(()=>{
+    if(page.classList.contains('open')) onOpen();
+    else { timers.forEach(clearTimeout); }
+  }).observe(page, {attributes:true, attributeFilter:['class']});
+})();
+
+/* ---------- Real Linux in the browser (CheerpX + xterm.js) ---------- */
+(function(){
+  const pane = document.getElementById('lx-pane');
+  const host = document.getElementById('lx-host');
+  const keys = document.getElementById('lx-keys');
+  const dosTerm = document.getElementById('term');
+  const CX   = 'https://cxrtnc.leaningtech.com/1.2.8/cx.esm.js';
+  const DISK = 'wss://disks.webvm.io/debian_large_20230522_5044875331.ext2';
+  const XJS  = 'https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.js';
+  const XCSS = 'https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.css';
+  const FIT  = 'https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.js';
+  const lx = {term:null, cx:null, send:null, booting:false, running:false, ctrl:false};
+
+  function loadCss(h){ return new Promise((ok,no)=>{ const l=document.createElement('link'); l.rel='stylesheet'; l.href=h; l.crossOrigin='anonymous'; l.onload=ok; l.onerror=no; document.head.appendChild(l); }); }
+  function loadJs(u){ return new Promise((ok,no)=>{ const e=document.createElement('script'); e.src=u; e.crossOrigin='anonymous'; e.onload=ok; e.onerror=no; document.head.appendChild(e); }); }
+
+  function show(){
+    pane.style.display = 'flex'; dosTerm.style.display = 'none'; window.__linuxShown = true;
+    setTimeout(()=>{ if(lx.term) lx.term.focus(); }, 60);
+  }
+  function hide(){
+    pane.style.display = 'none'; dosTerm.style.display = ''; window.__linuxShown = false;
+    if(window.matchMedia('(pointer:fine)').matches){ const i=document.getElementById('term-in'); if(i) i.focus(); }
+  }
+
+  function sendStr(str){
+    if(!lx.send) return;
+    if(lx.ctrl && str.length){
+      const c = str[0].toUpperCase().charCodeAt(0);
+      if(c >= 64 && c <= 95) str = String.fromCharCode(c - 64) + str.slice(1);
+      lx.ctrl = false; document.getElementById('lx-ctrl').classList.remove('on');
+    }
+    for(let i=0;i<str.length;i++) lx.send(str.charCodeAt(i));
+  }
+
+  const KEYMAP = {esc:'\x1b', tab:'\t', up:'\x1b[A', down:'\x1b[B', right:'\x1b[C', left:'\x1b[D'};
+  keys.addEventListener('mousedown', e=>e.preventDefault());
+  keys.addEventListener('click', e=>{
+    const b = e.target.closest('button[data-k]'); if(!b) return;
+    const k = b.dataset.k;
+    if(k === 'ctrl'){ lx.ctrl = !lx.ctrl; b.classList.toggle('on', lx.ctrl); }
+    else if(k === 'dos'){ hide(); }
+    else sendStr(KEYMAP[k]);
+    if(lx.term && k !== 'dos') lx.term.focus();
+  });
+
+  function netStatus(t){ const el = document.getElementById('lx-net'); if(el) el.textContent = 'NET: ' + t; }
+  function savedKey(){ try{ return localStorage.getItem('lx-authkey') || ''; }catch(e){ return ''; } }
+
+  function netConfig(){
+    const ni = {
+      stateUpdateCb: function(st){
+        lx.netState = st;
+        if(st === 6){ netStatus(lx.ip || 'connected'); if(window.dosPrint) window.dosPrint('[net] connected ' + (lx.ip || ''), 'cy'); }
+        else if(st === 2){ netStatus('login needed'); }
+        else if(st === 5){ netStatus('connecting...'); }
+        else { netStatus('off'); }
+      },
+      netmapUpdateCb: function(map){
+        try{ lx.ip = map.self.addresses[0]; if(lx.netState === 6) netStatus(lx.ip); }catch(e){}
+      },
+      loginUrlCb: function(url){
+        const a = document.getElementById('lx-login'); a.href = url; a.style.display = 'inline';
+        if(window.dosPrintLink) window.dosPrintLink('Log in to Tailscale: ', url);
+        try{ window.open(url, '_blank', 'noopener'); }catch(e){}
+      }
+    };
+    const key = savedKey();
+    if(key) ni.authKey = key;
+    return ni;
+  }
+
+  window.netLogin = async function(){
+    const say = window.dosPrint || function(){};
+    if(!lx.cx){ say('Start Linux first (type LINUX), then NETLOGIN.', 'mg'); return; }
+    say('Starting Tailscale login... a login link will appear here.', 'cy');
+    try{ await lx.cx.networkLogin(); }
+    catch(e){ say('Network login failed: ' + (e && e.message ? e.message : e), 'mg'); }
+  };
+
+  window.netKey = function(k){
+    const say = window.dosPrint || function(){};
+    try{
+      if(!k){ say(savedKey() ? 'An auth key is saved in this browser. NETKEY CLEAR removes it.' : 'Usage: NETKEY <tailscale-auth-key>', 'mg'); return; }
+      if(k.toUpperCase() === 'CLEAR'){ localStorage.removeItem('lx-authkey'); say('Auth key removed.'); return; }
+      localStorage.setItem('lx-authkey', k);
+      say('Auth key saved in this browser only. Reload the page and type LINUX to use it.', 'cy');
+    }catch(e){ say('Could not save the key (storage blocked).', 'mg'); }
+  };
+
+  window.startLinux = async function(){
+    if(lx.booting || lx.running){ show(); return; }
+    lx.booting = true; show();
+    try{
+      if(!lx.term){
+        await Promise.all([loadCss(XCSS), loadJs(XJS)]);
+        await loadJs(FIT);
+        const t = new Terminal({convertEol:true, cursorBlink:true, fontSize:14, fontFamily:'Consolas,"Courier New",monospace', theme:{background:'#000000'}});
+        const fit = new FitAddon.FitAddon();
+        t.loadAddon(fit); t.open(host); fit.fit();
+        if(window.matchMedia('(pointer:coarse)').matches) t.resize(t.cols, Math.min(t.rows, 14));
+        t.onData(sendStr);
+        lx.term = t; t.focus();
+      }
+      const t = lx.term;
+      if(!window.crossOriginIsolated){
+        t.write('\x1b[31mCannot start: this page is not cross-origin isolated.\x1b[0m\r\n');
+        t.write('Put coi-serviceworker.js in the same folder as index.html,\r\nthen hard-refresh the page (and allow service workers).\r\n');
+        lx.booting = false; return;
+      }
+      if(!lx.cx){
+        t.write('Booting Debian in your browser...\r\nFirst boot downloads the engine; later boots are faster.\r\n');
+        const CheerpX = await import(CX);
+        const cloud = await CheerpX.CloudDevice.create(DISK);
+        const idb = await CheerpX.IDBDevice.create('darkchief-linux');
+        const overlay = await CheerpX.OverlayDevice.create(cloud, idb);
+        const web = await CheerpX.WebDevice.create('');
+        const data = await CheerpX.DataDevice.create();
+        lx.cx = await CheerpX.Linux.create({mounts:[
+          {type:'ext2', path:'/', dev:overlay},
+          {type:'dir', path:'/app', dev:web},
+          {type:'dir', path:'/data', dev:data},
+          {type:'devs', path:'/dev'}
+        ], networkInterface: netConfig()});
+        lx.send = lx.cx.setCustomConsole(buf=>t.write(new Uint8Array(buf)), t.cols, t.rows);
+        if(savedKey()) lx.cx.networkLogin().catch(function(e){ console.warn('networkLogin', e); });
+      }
+      lx.booting = false; lx.running = true;
+      await lx.cx.run('/bin/bash', ['--login'], {
+        env:['HOME=/home/user','USER=user','SHELL=/bin/bash','EDITOR=vim','LANG=en_US.UTF-8','LC_ALL=C','TERM=xterm-256color'],
+        cwd:'/home/user', uid:1000, gid:1000
+      });
+      lx.running = false;
+      t.write('\r\n[shell exited]\r\n');
+      hide();
+      if(window.dosPrint) window.dosPrint('[Linux shell closed. Type LINUX to start a new one.]', 'dim');
+    }catch(err){
+      console.error(err);
+      lx.booting = false; lx.running = false;
+      if(lx.term) lx.term.write('\r\n\x1b[31mLinux failed to start: ' + (err && err.message ? err.message : err) + '\x1b[0m\r\n');
+    }
+  };
 })();
 </script>
 
