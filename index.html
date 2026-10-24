@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <title>DARKCHIEF</title>
-<meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, interactive-widget=resizes-content">
 <script>
 /* Registers coi-serviceworker.js so the page becomes cross-origin isolated
    (required for the in-browser Linux). Reloads once after the worker is active. */
@@ -92,7 +92,7 @@
   /* ---------- hidden menu page: DOS terminal ---------- */
   #menu-page{
     display:none;position:fixed;inset:0;z-index:20;overflow-y:auto;
-    background:#000;color:#b8b8b8;
+    background:#000;color:#fcee09;
     font-family:'Perfect DOS VGA 437','Consolas','Courier New',monospace;
     font-size:clamp(12px,3.4vw,16px);line-height:1.35;
   }
@@ -101,28 +101,64 @@
   .term{max-width:720px;margin:0 auto;padding:54px 14px 80px;min-height:100%;cursor:text;}
   #term-out div{white-space:pre-wrap;word-break:break-word;min-height:1.35em;}
   #term-out .hi{color:#fff;}
-  #term-out .cy{color:#55ffff;}
-  #term-out .yl{color:#ffff55;}
-  #term-out .mg{color:#ff55ff;}
+  #term-out .cy{color:#00f0ff;}
+  #term-out .yl{color:#ffb300;}
+  #term-out .mg{color:#ff2a55;}
   #term-out .dim{color:#7a7a7a;}
   .term-line{display:flex;align-items:center;gap:0;}
-  .term-line .prompt{color:#b8b8b8;white-space:pre;}
+  .term-line .prompt{color:#fcee09;white-space:pre;}
   #term-in{flex:1;min-width:0;background:transparent;border:0;outline:0;color:#fff;font:inherit;caret-color:#fff;padding:0;text-transform:uppercase;}
   #term-keys{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px;}
-  #term-keys button,.menu-ctrl button{background:#000;color:#b8b8b8;border:1px solid #b8b8b8;font:inherit;font-size:12px;padding:5px 10px;cursor:pointer;border-radius:0;}
-  #term-keys button:hover,.menu-ctrl button:hover{background:#b8b8b8;color:#000;}
+  #term-keys button,.menu-ctrl button{background:#000;color:#fcee09;border:1px solid #fcee09;font:inherit;font-size:12px;padding:5px 10px;cursor:pointer;border-radius:0;}
+  #term-keys button:hover,.menu-ctrl button:hover{background:#fcee09;color:#000;}
   .menu-ctrl{position:fixed;top:10px;right:10px;display:flex;gap:8px;z-index:21;}
   .menu-ctrl button{background:#000;}
 
-  #lx-pane{display:none;position:fixed;inset:44px 0 0 0;background:#000;flex-direction:column;z-index:19;}
-  #lx-host{flex:1;min-height:0;padding:4px 6px;overflow:hidden;}
+  #lx-pane{touch-action:manipulation;overscroll-behavior:none;display:none;position:fixed;inset:44px 0 0 0;background:#000;flex-direction:column;z-index:19;}
+  #lx-host{flex:1;min-height:0;width:100%;padding:4px 6px;overflow:hidden;}
   #lx-keys{display:flex;flex-wrap:wrap;gap:6px;padding:6px;border-top:1px solid #333;background:#000;}
-  #lx-keys button{background:#000;color:#b8b8b8;border:1px solid #b8b8b8;font:inherit;font-size:12px;padding:6px 10px;cursor:pointer;border-radius:0;}
-  #lx-keys button.on,#lx-keys button:active{background:#b8b8b8;color:#000;}
+  #lx-keys button{background:#000;color:#fcee09;border:1px solid #fcee09;font:inherit;font-size:12px;padding:6px 10px;cursor:pointer;border-radius:0;}
+  #lx-keys button.on,#lx-keys button:active{background:#fcee09;color:#000;}
 
   #lx-net{margin-left:auto;font-size:12px;color:#7a7a7a;align-self:center;}
-  #lx-login{display:none;font-size:12px;color:#55ffff;align-self:center;}
-  #term-out a{color:#55ffff;}
+  #lx-login{display:none;font-size:12px;color:#00f0ff;align-self:center;}
+  #term-out a{color:#00f0ff;}
+
+  /* ---------- Cyberpunk breach protocol ---------- */
+  #breach{display:none;min-height:100%;background:radial-gradient(ellipse at 50% 0%,rgba(252,238,9,0.07),transparent 60%),#050805;}
+  .br-wrap{max-width:760px;margin:0 auto;padding:64px 14px 40px;}
+  .br-tag{color:#00f0ff;letter-spacing:3px;font-size:12px;}
+  .br-title{font-size:clamp(30px,9vw,56px);color:#fcee09;letter-spacing:4px;margin:12px 0;text-shadow:0 0 10px rgba(252,238,9,0.5),2px 0 #ff2a55,-2px 0 #00f0ff;animation:brflick 3s infinite;}
+  @keyframes brflick{0%,92%,100%{opacity:1}94%{opacity:.55}96%{opacity:1}98%{opacity:.7}}
+  .br-sub{color:#9a9640;margin:0 0 26px;line-height:1.5;}
+  .br-btn{background:#fcee09;color:#000;border:0;padding:13px 30px;font:inherit;font-weight:bold;letter-spacing:4px;cursor:pointer;clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px));}
+  .br-btn:active{background:#00f0ff;}
+  .br-head{display:flex;justify-content:space-between;align-items:baseline;color:#fcee09;letter-spacing:3px;border-bottom:1px solid #fcee09;padding-bottom:6px;}
+  #br-time{font-size:22px;color:#00f0ff;}
+  #br-bar{height:6px;background:#2a2805;margin:8px 0 16px;}
+  #br-bar i{display:block;height:100%;width:100%;background:#fcee09;}
+  .br-cols{display:flex;flex-wrap:wrap;gap:14px;}
+  .br-main{flex:1 1 270px;}
+  .br-side{flex:1 1 230px;display:flex;flex-direction:column;gap:14px;}
+  .br-box{border:1px solid rgba(252,238,9,0.45);padding:10px;background:rgba(252,238,9,0.04);}
+  .br-box h4{margin:0 0 8px;font-size:11px;letter-spacing:2px;color:#00f0ff;font-weight:normal;}
+  #br-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;}
+  .bc{aspect-ratio:1;min-height:44px;background:#000;color:#fcee09;border:1px solid transparent;font:inherit;font-size:clamp(15px,4.6vw,21px);padding:0;cursor:default;}
+  .bc.live{border-color:#fcee09;background:rgba(252,238,9,0.14);cursor:pointer;}
+  .bc.dim{color:#6b6710;}
+  .bc.used{color:#2a2805;text-decoration:line-through;}
+  #br-buf{display:flex;gap:4px;flex-wrap:wrap;}
+  .bs{width:40px;height:40px;border:1px solid #fcee09;text-align:center;line-height:38px;color:#fff;}
+  .dm{margin-bottom:10px;}
+  .dm small{display:block;color:#7c7820;font-size:10px;letter-spacing:2px;margin-bottom:3px;}
+  .dm .cd{display:inline-block;min-width:30px;text-align:center;margin-right:4px;padding:3px 2px;border:1px solid #6b6710;color:#fcee09;}
+  .dm .cd.hit{background:#00f0ff;border-color:#00f0ff;color:#000;}
+  .dm.done small{color:#00f0ff;}
+  .dm.done .cd{border-color:#00f0ff;color:#00f0ff;background:transparent;}
+  #br-msg{margin-top:16px;min-height:40px;letter-spacing:2px;}
+  #br-msg .ok{color:#00f0ff;font-size:18px;}
+  #br-msg .bad{color:#ff2a55;font-size:16px;margin-bottom:10px;}
+  @media (prefers-reduced-motion: reduce){ .br-title{animation:none;} }
 
   @media (prefers-reduced-motion: reduce){
     h1::before,h1::after{animation:none;display:none;}
@@ -213,6 +249,28 @@
   <div class="menu-ctrl">
     <button id="menu-mute">♪ SOUND: ON</button>
     <button id="menu-back">EXIT</button>
+  </div>
+  <div id="breach">
+    <div class="br-wrap">
+      <div id="br-intro">
+        <div class="br-tag">NETWATCH // ACCESS POINT 07</div>
+        <div class="br-title">ICE DETECTED</div>
+        <p class="br-sub">Hostile subnet. Breach the node to reach the terminal.<br>Pick codes to fill the buffer. Match all three sequences before time runs out.</p>
+        <button id="br-start" class="br-btn" type="button">JACK IN</button>
+      </div>
+      <div id="br-game" style="display:none">
+        <div class="br-head"><span>BREACH PROTOCOL</span><span id="br-time">60.0</span></div>
+        <div id="br-bar"><i></i></div>
+        <div class="br-cols">
+          <div class="br-main"><div class="br-box"><h4>CODE MATRIX</h4><div id="br-grid"></div></div></div>
+          <div class="br-side">
+            <div class="br-box"><h4>BUFFER</h4><div id="br-buf"></div></div>
+            <div class="br-box"><h4>SEQUENCE REQUIRED TO UPLOAD</h4><div id="br-dm"></div></div>
+          </div>
+        </div>
+        <div id="br-msg"></div>
+      </div>
+    </div>
   </div>
   <div id="lx-pane">
     <div id="lx-host"></div>
@@ -355,6 +413,7 @@
   let muted = false;
 
   audio.volume = 0.5;
+  let cur = audio;
 
   const BASE = 'https://darkchieff.github.io/Betrayal';
   const canOgg = !!audio.canPlayType('audio/ogg; codecs="vorbis"');
@@ -375,17 +434,36 @@
 
   function tryPlay(){
     if(muted) return;
-    const p = audio.play();
+    const p = cur.play();
     if(p && p.catch){
       p.catch(err=>{
         if(err && err.name === 'NotAllowedError'){
           label('TAP TO PLAY SOUND');
-          const once = ()=>{ if(page.classList.contains('open') && !muted) audio.play().catch(()=>{}); };
+          const once = ()=>{ if(page.classList.contains('open') && !muted) cur.play().catch(()=>{}); };
           document.addEventListener('pointerdown', once, {once:true});
         }
       });
     }
   }
+
+  // second track: the hacking music, played only during the breach minigame.
+  // Put hack.ogg and/or hack.mp3 next to index.html. If missing, the main track plays instead.
+  const hack = new Audio();
+  hack.loop = true; hack.volume = 0.6; hack.preload = 'none';
+  const hackOrder = canOgg ? ['ogg','mp3'] : ['mp3','ogg'];
+  let hTried = 0, hackReady = false;
+  function setHackSrc(){ hack.src = 'hack.' + hackOrder[hTried]; }
+  hack.addEventListener('playing', ()=>label('SOUND: ON'));
+  hack.addEventListener('error', ()=>{
+    if(hTried < hackOrder.length - 1){ hTried++; setHackSrc(); if(cur === hack) tryPlay(); }
+    else { console.warn('hack track not found, using main track'); if(cur === hack){ cur = audio; tryPlay(); } }
+  });
+  window.setTrack = function(which){
+    audio.pause(); hack.pause();
+    if(which === 'hack'){ if(!hackReady){ hackReady = true; setHackSrc(); } cur = hack; }
+    else { cur = audio; }
+    tryPlay();
+  };
 
   function openMenu(){
     if(window.stopSynth) window.stopSynth();
@@ -394,7 +472,7 @@
     document.documentElement.style.overflow = 'hidden';
     page.scrollTop = 0;
     if(location.hash !== '#menu') history.pushState(null,'','#menu');
-    tryPlay();
+    if(window.__breachPassed) window.setTrack('main');
   }
 
   function closeMenu(){
@@ -403,6 +481,8 @@
     document.documentElement.style.overflow = '';
     audio.pause();
     audio.currentTime = 0;
+    hack.pause();
+    hack.currentTime = 0;
     if(location.hash === '#menu') history.pushState(null,'',location.pathname + location.search);
   }
 
@@ -411,7 +491,7 @@
 
   mute.addEventListener('click', ()=>{
     muted = !muted;
-    if(muted){ audio.pause(); mute.textContent = '♪ SOUND: OFF'; }
+    if(muted){ cur.pause(); mute.textContent = '♪ SOUND: OFF'; }
     else { tryPlay(); mute.textContent = '♪ SOUND: ON'; }
   });
 
@@ -618,7 +698,7 @@
       case 'NETKEY':
         if(window.netKey) window.netKey(q.split(/\s+/).slice(1).join('')); return;
       case 'CLS': out.innerHTML = ''; return;
-      case 'VER': print('DINER-DOS [Version 6.22]'); return;
+      case 'VER': print('NETRUNNER-DOS [Version 2.077]'); return;
       case 'EXIT': document.getElementById('menu-back').click(); return;
       case 'MENU':
         print('');
@@ -684,9 +764,17 @@
 
   // keep the pane (and its button bar) above the on-screen keyboard, in any browser
   function fitPane(){
+    // pin the pane to the *visible* area so it can't drift or sit under the keyboard
     const v = window.visualViewport;
-    const covered = v ? Math.max(0, window.innerHeight - v.height - v.offsetTop) : 0;
-    pane.style.bottom = covered + 'px';
+    const top = v ? v.offsetTop : 0, left = v ? v.offsetLeft : 0;
+    const w = v ? v.width : window.innerWidth, h = v ? v.height : window.innerHeight;
+    pane.style.left = left + 'px';
+    pane.style.top = (top + 44) + 'px';
+    pane.style.right = 'auto'; pane.style.bottom = 'auto';
+    pane.style.width = w + 'px';
+    pane.style.height = Math.max(120, h - 44) + 'px';
+    const ctrl = document.querySelector('.menu-ctrl');
+    if(ctrl) ctrl.style.top = (top + 10) + 'px';
   }
   if(window.visualViewport){
     window.visualViewport.addEventListener('resize', fitPane);
@@ -767,7 +855,7 @@
       if(!lx.term){
         await Promise.all([loadCss(XCSS), loadJs(XJS)]);
         await loadJs(FIT);
-        const t = new Terminal({convertEol:true, cursorBlink:true, fontSize:14, fontFamily:'Consolas,"Courier New",monospace', theme:{background:'#000000'}});
+        const t = new Terminal({convertEol:true, cursorBlink:true, fontSize:14, fontFamily:'Consolas,"Courier New",monospace', theme:{background:'#000000', foreground:'#fcee09', cursor:'#00f0ff'}});
         const fit = new FitAddon.FitAddon();
         t.loadAddon(fit); t.open(host); fit.fit();
         if(window.matchMedia('(pointer:coarse)').matches) t.resize(t.cols, Math.min(t.rows, 14));
@@ -812,6 +900,156 @@
       if(lx.term) lx.term.write('\r\n\x1b[31mLinux failed to start: ' + (err && err.message ? err.message : err) + '\x1b[0m\r\n');
     }
   };
+})();
+
+/* ---------- Breach protocol minigame (gate to the terminal) ---------- */
+(function(){
+  const page = document.getElementById('menu-page');
+  const root = document.getElementById('breach');
+  const intro = document.getElementById('br-intro');
+  const game = document.getElementById('br-game');
+  const gridEl = document.getElementById('br-grid');
+  const bufEl = document.getElementById('br-buf');
+  const dmEl = document.getElementById('br-dm');
+  const msgEl = document.getElementById('br-msg');
+  const timeEl = document.getElementById('br-time');
+  const barFill = document.querySelector('#br-bar i');
+  const dosTerm = document.getElementById('term');
+  const CODES = ['1C','55','BD','E9','7A','FF'], N = 5, BUF = 6, TIME = 60000;
+  const NAMES = ['UNLOCK ACCESS','ROOT SHELL','KILL ICE'];
+  let G = null, timer = null;
+
+  function rnd(n){ return Math.floor(Math.random() * n); }
+  function has(buf, d){
+    for(let i=0;i+d.length<=buf.length;i++){
+      let ok = true;
+      for(let j=0;j<d.length;j++) if(buf[i+j] !== d[j]){ ok = false; break; }
+      if(ok) return true;
+    }
+    return false;
+  }
+  function prog(buf, d){
+    if(has(buf, d)) return d.length;
+    for(let k=d.length-1;k>0;k--){
+      if(buf.length < k) continue;
+      let ok = true;
+      for(let j=0;j<k;j++) if(buf[buf.length-k+j] !== d[j]){ ok = false; break; }
+      if(ok) return k;
+    }
+    return 0;
+  }
+
+  // builds a puzzle that is always solvable: the daemons are cut from a real valid path
+  function gen(){
+    for(;;){
+      const m = [];
+      for(let r=0;r<N;r++){ m.push([]); for(let c=0;c<N;c++) m[r].push(CODES[rnd(CODES.length)]); }
+      const used = new Set(); let r = 0, c = rnd(N);
+      const path = [[r,c]]; used.add(r*N+c);
+      let ok = true;
+      for(let i=1;i<BUF;i++){
+        const cand = [];
+        if(i % 2 === 1){ for(let rr=0;rr<N;rr++) if(!used.has(rr*N+c)) cand.push([rr,c]); }
+        else { for(let cc=0;cc<N;cc++) if(!used.has(r*N+cc)) cand.push([r,cc]); }
+        if(!cand.length){ ok = false; break; }
+        const p = cand[rnd(cand.length)]; r = p[0]; c = p[1]; used.add(r*N+c); path.push(p);
+      }
+      if(!ok) continue;
+      const v = path.map(p=>m[p[0]][p[1]]);
+      const dm = [v.slice(0,3), v.slice(2,5), v.slice(3,6)];
+      if(new Set(dm.map(d=>d.join())).size < 3) continue;
+      return {m:m, dm:dm, buf:[], used:new Set(), mode:'row', line:0, over:false, t0:performance.now()};
+    }
+  }
+
+  function render(){
+    gridEl.innerHTML = '';
+    for(let r=0;r<N;r++) for(let c=0;c<N;c++){
+      const b = document.createElement('button');
+      b.type = 'button'; b.textContent = G.m[r][c];
+      const isUsed = G.used.has(r*N+c);
+      const live = !G.over && !isUsed && (G.mode === 'row' ? r === G.line : c === G.line);
+      b.className = 'bc ' + (isUsed ? 'used' : live ? 'live' : 'dim');
+      if(live) b.addEventListener('click', ()=>pick(r,c));
+      gridEl.appendChild(b);
+    }
+    bufEl.innerHTML = '';
+    for(let i=0;i<BUF;i++){ const d = document.createElement('div'); d.className = 'bs'; d.textContent = G.buf[i] || ''; bufEl.appendChild(d); }
+    dmEl.innerHTML = '';
+    G.dm.forEach((d, i)=>{
+      const p = prog(G.buf, d), done = p === d.length;
+      const row = document.createElement('div'); row.className = 'dm' + (done ? ' done' : '');
+      const sm = document.createElement('small'); sm.textContent = NAMES[i] + (done ? ' - UPLOADED' : ''); row.appendChild(sm);
+      d.forEach((code, k)=>{ const sp = document.createElement('span'); sp.className = 'cd' + (k < p && !done ? ' hit' : ''); sp.textContent = code; row.appendChild(sp); });
+      dmEl.appendChild(row);
+    });
+  }
+
+  function stop(){ if(timer){ clearInterval(timer); timer = null; } }
+
+  function pick(r, c){
+    if(!G || G.over || G.used.has(r*N+c)) return;
+    if(G.mode === 'row' ? r !== G.line : c !== G.line) return;
+    G.buf.push(G.m[r][c]); G.used.add(r*N+c);
+    if(G.mode === 'row'){ G.mode = 'col'; G.line = c; } else { G.mode = 'row'; G.line = r; }
+    if(G.dm.every(d=>has(G.buf, d))){ win(); return; }
+    if(G.buf.length >= BUF){ lose('BUFFER FULL'); return; }
+    let any = false;
+    for(let i=0;i<N;i++){ const k = G.mode === 'row' ? G.line*N+i : i*N+G.line; if(!G.used.has(k)) any = true; }
+    if(!any){ lose('NO VALID NODES'); return; }
+    render();
+  }
+
+  function win(){
+    G.over = true; stop(); render();
+    msgEl.innerHTML = '<div class="ok">BREACH SUCCESSFUL // ACCESS GRANTED</div>';
+    setTimeout(unlock, 1500);
+  }
+  function lose(why){
+    G.over = true; stop(); render();
+    msgEl.innerHTML = '<div class="bad">BREACH FAILED // ' + why + '</div>';
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'br-btn'; b.textContent = 'RETRY';
+    b.addEventListener('click', newGame);
+    msgEl.appendChild(b);
+  }
+  function unlock(){
+    window.__breachPassed = true;
+    root.style.display = 'none';
+    dosTerm.style.display = '';
+    if(window.setTrack) window.setTrack('main');
+    if(window.matchMedia('(pointer:fine)').matches){ const i = document.getElementById('term-in'); if(i) i.focus(); }
+  }
+
+  function newGame(){
+    stop(); G = gen(); msgEl.innerHTML = ''; render();
+    timeEl.textContent = (TIME/1000).toFixed(1); barFill.style.width = '100%';
+    timer = setInterval(()=>{
+      if(!G || G.over) return;
+      const left = TIME - (performance.now() - G.t0);
+      if(left <= 0){ timeEl.textContent = '0.0'; barFill.style.width = '0%'; lose('TIME EXPIRED'); return; }
+      timeEl.textContent = (left/1000).toFixed(1);
+      barFill.style.width = (left/TIME*100) + '%';
+    }, 100);
+  }
+
+  function showIntro(){
+    stop();
+    root.style.display = 'block'; intro.style.display = ''; game.style.display = 'none';
+    dosTerm.style.display = 'none'; msgEl.innerHTML = '';
+  }
+
+  document.getElementById('br-start').addEventListener('click', ()=>{
+    intro.style.display = 'none'; game.style.display = '';
+    if(window.setTrack) window.setTrack('hack');
+    newGame();
+  });
+
+  function sync(){
+    if(page.classList.contains('open')){ if(!window.__breachPassed) showIntro(); }
+    else stop();
+  }
+  new MutationObserver(sync).observe(page, {attributes:true, attributeFilter:['class']});
+  sync();
 })();
 </script>
 
